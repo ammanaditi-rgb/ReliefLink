@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReliefLink – Disaster Management Portal</title>
+<style>
+:root{--bg:#f2f6f4;--ink:#10241f;--mut:#5a6d67;--card:#fff;--line:#d6e0dc;--pri:#0f5c55;--pri2:#0b423d;--red:#c8371d;--amb:#d9931a;--grn:#2e7d4f}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+button,input,select,textarea{font:inherit}
+a{color:var(--pri)}
+:focus-visible{outline:3px solid var(--amb);outline-offset:2px}
+.hide{display:none!important}
+/* login */
+#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.hero{background:var(--pri2);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.hero h1{font-size:2.6rem;line-height:1.1;max-width:14ch}
+.hero p{max-width:44ch;color:#cfe5e1}
+.hero .sos{display:inline-block;background:var(--red);padding:10px 18px;border-radius:6px;font-weight:700;width:fit-content;text-decoration:none;color:#fff}
+.lbox{display:grid;place-items:center;padding:32px}
+form.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:28px;width:100%;max-width:400px;display:grid;gap:12px}
+label{font-size:.85rem;font-weight:600;display:grid;gap:4px}
+input,select,textarea{padding:10px;border:1px solid #b9c8c3;border-radius:6px;background:#fff;width:100%}
+.btn{background:var(--pri);color:#fff;border:0;padding:10px 16px;border-radius:6px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--pri2)}
+.btn.red{background:var(--red)}
+.btn.ghost{background:transparent;color:var(--pri);border:1px solid var(--pri)}
+.err{color:var(--red);font-size:.85rem;min-height:1.2em}
+.note{font-size:.8rem;color:var(--mut)}
+/* app */
+header{background:var(--pri2);color:#fff;display:flex;align-items:center;gap:16px;padding:10px 20px;position:sticky;top:0;z-index:5;flex-wrap:wrap}
+header b{font-size:1.2rem}
+header .sp{flex:1}
+header .user{font-size:.85rem;color:#cfe5e1}
+nav{background:#fff;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;padding:0 12px;position:sticky;top:52px;z-index:4}
+nav button{background:none;border:0;padding:12px 14px;cursor:pointer;color:var(--mut);font-weight:600;white-space:nowrap;border-bottom:3px solid transparent}
+nav button.on{color:var(--pri);border-color:var(--pri)}
+main{max-width:1080px;margin:0 auto;padding:24px 18px 60px}
+h2{font-size:1.5rem;margin-bottom:4px}
+.sub{color:var(--mut);margin-bottom:18px}
+.ticker{background:#fdecea;border-left:5px solid var(--red);padding:10px 14px;margin-bottom:20px;border-radius:4px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.stat{font-size:2rem;font-weight:700;color:var(--pri)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.tools input{max-width:280px}.tools select{max-width:200px}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:99px;color:#fff}
+.open,.high{background:var(--grn)}.limited,.medium{background:var(--amb)}.full,.low{background:var(--red)}
+.bar{height:8px;background:#e3ebe8;border-radius:9px;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%}
+.row{display:flex;justify-content:space-between;align-items:start;gap:8px}
+.card h3{font-size:1.05rem}
+.meta{font-size:.85rem;color:var(--mut)}
+.alert{border-left:5px solid var(--amb)}.alert.sev-high{border-color:var(--red)}.alert.sev-low{border-color:var(--grn)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+details{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:10px}
+summary{font-weight:700;cursor:pointer}
+details ul{margin:8px 0 0 20px}
+.chk label{display:flex;gap:8px;align-items:center;font-weight:400;padding:4px 0}
+.chk input{width:auto}
+.call{display:flex;justify-content:space-between;align-items:center}
+.call a{background:var(--red);color:#fff;text-decoration:none;padding:6px 14px;border-radius:6px;font-weight:700}
+.empty{color:var(--mut);padding:20px;text-align:center;border:1px dashed var(--line);border-radius:8px}
+@media(max-width:800px){#login{grid-template-columns:1fr}.hero{padding:32px}.hero h1{font-size:2rem}.two{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .6s}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login">
+  <div class="hero">
+    <h1>Find shelter, food and help fast.</h1>
+    <p>ReliefLink brings relief camps, supplies, alerts and emergency contacts into one place for citizens, volunteers and coordinators during floods, cyclones, earthquakes and other disasters.</p>
+    <a class="sos" href="tel:112">Emergency? Call 112</a>
+  </div>
+  <div class="lbox">
+    <form class="card" id="loginForm">
+      <h2 id="ltitle">Sign in</h2>
+      <label id="nameWrap" class="hide">Full name<input id="lname" autocomplete="name"></label>
+      <label>Email<input id="lemail" type="email" required autocomplete="email"></label>
+      <label>Password (min 6 characters)<input id="lpass" type="password" required minlength="6" autocomplete="current-password"></label>
+      <label>I am a
+        <select id="lrole"><option>Citizen</option><option>Volunteer</option><option>Coordinator</option></select>
+      </label>
+      <div class="err" id="lerr"></div>
+      <button class="btn" id="lbtn">Sign in</button>
+      <button type="button" class="btn ghost" id="toggle">New here? Create an account</button>
+      <p class="note">Demo only: accounts are saved in this browser, no server is used.</p>
+    </form>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app" class="hide">
+  <header><b>ReliefLink</b><span class="sp"></span><span class="user" id="who"></span><button class="btn red" id="logout">Log out</button></header>
+  <nav id="nav"></nav>
+  <main>
+
+    <section id="dashboard">
+      <h2>Dashboard</h2><p class="sub">Live overview of the current situation (sample data).</p>
+      <div class="ticker" id="ticker"></div>
+      <div class="grid" id="stats"></div>
+      <h2 style="margin-top:28px">Latest alerts</h2><p class="sub"></p>
+      <div class="grid" id="dashAlerts"></div>
+    </section>
+
+    <section id="alerts" class="hide">
+      <h2>Alerts &amp; Advisories</h2><p class="sub">Official warnings and road or weather updates.</p>
+      <div class="grid" id="alertList"></div>
+    </section>
+
+    <section id="camps" class="hide">
+      <h2>Relief Camps</h2><p class="sub">Find a safe shelter near you and check space before you travel.</p>
+      <div class="tools">
+        <input id="campQ" placeholder="Search camp or area" aria-label="Search camps">
+        <select id="campD" aria-label="Filter by district"></select>
+        <select id="campS" aria-label="Filter by status"><option value="">Any status</option><option value="open">Space available</option><option value="limited">Filling up</option><option value="full">Full</option></select>
+      </div>
+      <div class="grid" id="campList"></div>
+    </section>
+
+    <section id="food" class="hide">
+      <h2>Food, Water &amp; Supplies</h2><p class="sub">Distribution points and current stock levels.</p>
+      <div class="tools">
+        <select id="resT" aria-label="Filter by type"><option value="">All types</option><option>Food</option><option>Water</option><option>Medical</option><option>Clothing &amp; Blankets</option></select>
+      </div>
+      <div class="grid" id="resList"></div>
+    </section>
+
+    <section id="help" class="hide">
+      <h2>Request Help</h2><p class="sub">Tell coordinators what you need. For life-threatening situations call 112 first.</p>
+      <div class="two">
+        <form class="card" id="helpForm">
+          <label>Your name<input id="hname" required></label>
+          <label>Phone number<input id="hphone" type="tel" required pattern="[0-9+ ]{10,14}" title="Enter a valid phone number"></label>
+          <label>Type of help
+            <select id="htype"><option>Rescue / Evacuation</option><option>Food &amp; Water</option><option>Medical</option><option>Shelter</option><option>Missing person</option></select>
+          </label>
+          <label>Location / landmark<input id="hloc" required></label>
+          <label>Number of people<input id="hnum" type="number" min="1" value="1" required></label>
+          <label>Details<textarea id="hdet" rows="3"></textarea></label>
+          <button class="btn">Send request</button>
+        </form>
+        <div><h3 style="margin-bottom:10px">My requests</h3><div id="reqList"></div></div>
+      </div>
+    </section>
+
+    <section id="volunteer" class="hide">
+      <h2>Volunteer</h2><p class="sub">Offer your time or skills to the relief effort.</p>
+      <div class="two">
+        <form class="card" id="volForm">
+          <label>Name<input id="vname" required></label>
+          <label>Phone<input id="vphone" type="tel" required></label>
+          <label>Skill
+            <select id="vskill"><option>First aid / Medical</option><option>Cooking &amp; distribution</option><option>Driving / Transport</option><option>Rescue / Swimming</option><option>Counselling</option><option>General help</option></select>
+          </label>
+          <label>Available from<input id="vdate" type="date" required></label>
+          <button class="btn">Register as volunteer</button>
+        </form>
+        <div class="card"><h3>Registered volunteers</h3><p class="meta" id="volCount"></p><ul id="volList" style="margin:10px 0 0 18px"></ul></div>
+      </div>
+    </section>
+
+    <section id="contacts" class="hide">
+      <h2>Emergency Contacts</h2><p class="sub">Tap a number to call from your phone. Confirm local numbers with your district office.</p>
+      <div class="grid" id="callList"></div>
+    </section>
+
+    <section id="safety" class="hide">
+      <h2>Safety Guidelines</h2><p class="sub">What to do before, during and after common disasters.</p>
+      <div class="two">
+        <div id="tips"></div>
+        <div class="card chk"><h3>Emergency kit checklist</h3><p class="meta" id="kitProg"></p><div id="kit"></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ---------- SAMPLE DATA (edit freely) ---------- */
+const camps=[
+ {n:"Government High School Shelter",d:"North",a:"Ward 12, Lake Road",cap:400,occ:210,ph:"9800000001",fac:["Food","Water","Medical","Toilets"]},
+ {n:"Community Hall Relief Camp",d:"South",a:"Market Square",cap:250,occ:235,ph:"9800000002",fac:["Food","Water","Blankets"]},
+ {n:"St. Mary's College Ground",d:"East",a:"College Road",cap:600,occ:600,ph:"9800000003",fac:["Food","Water","Medical","Power"]},
+ {n:"District Stadium Shelter",d:"Central",a:"Stadium Circle",cap:1000,occ:420,ph:"9800000004",fac:["Food","Water","Medical","Toilets","Power"]},
+ {n:"Temple Trust Shelter",d:"West",a:"Old Town",cap:150,occ:60,ph:"9800000005",fac:["Food","Water"]},
+ {n:"Railway Colony Hall",d:"North",a:"Station Road",cap:300,occ:270,ph:"9800000006",fac:["Water","Blankets","Toilets"]}
+];
+const res=[
+ {n:"Community Kitchen – Central",t:"Food",a:"Stadium Circle",time:"7am–9pm",st:"high",item:"Hot meals, baby food"},
+ {n:"Ration Distribution Point",t:"Food",a:"Ward 12 Ration Shop",time:"9am–5pm",st:"medium",item:"Rice, dal, oil, sugar"},
+ {n:"Water Tanker Point A",t:"Water",a:"Market Square",time:"6am–8pm",st:"high",item:"Drinking water, purification tablets"},
+ {n:"Water Tanker Point B",t:"Water",a:"Station Road",time:"6am–6pm",st:"low",item:"Drinking water"},
+ {n:"Mobile Medical Unit",t:"Medical",a:"Lake Road Junction",time:"24 hours",st:"medium",item:"First aid, ORS, basic medicines"},
+ {n:"District Hospital Relief Desk",t:"Medical",a:"Hospital Road",time:"24 hours",st:"high",item:"Emergency care, ambulances"},
+ {n:"Clothing & Blanket Store",t:"Clothing & Blankets",a:"Old Town Community Hall",time:"10am–6pm",st:"medium",item:"Blankets, clothes, mats"}
+];
+const alerts=[
+ {t:"Red alert: heavy rainfall",s:"high",m:"Very heavy rain expected for the next 24 hours. Avoid low-lying areas and move to camps if advised.",time:"Today, 8:00 am"},
+ {t:"River level rising",s:"high",m:"Water level near danger mark. Residents near the riverbank should evacuate now.",time:"Today, 6:30 am"},
+ {t:"Road closure",s:"medium",m:"Lake Road flooded and closed. Use the bypass via Station Road.",time:"Yesterday, 9:15 pm"},
+ {t:"Power restored",s:"low",m:"Electricity restored in East and Central zones.",time:"Yesterday, 4:00 pm"}
+];
+const contacts=[["National Emergency","112"],["Ambulance","108"],["Fire","101"],["Police","100"],["Disaster Management Helpline","1078"],["Women Helpline","1091"],["Child Helpline","1098"]];
+const tips={
+ Flood:["Move to higher ground and avoid walking or driving through flood water.","Switch off electricity and gas; keep documents in a waterproof bag.","After: drink only boiled or treated water and avoid touching wires."],
+ Earthquake:["Drop, cover and hold on under sturdy furniture.","Stay away from windows, lifts and heavy shelves.","After: expect aftershocks, check for gas leaks and use stairs."],
+ Cyclone:["Stay indoors, keep away from windows and secure loose objects.","Store food, water, torch and power bank; follow evacuation orders.","After: avoid fallen trees and power lines."],
+ Fire:["Crawl low under smoke and leave by the nearest safe exit.","Never use lifts; close doors behind you.","Call 101 once you are outside."]
+};
+const kit=["Drinking water (3 litres per person per day)","Dry food and baby food","First aid kit and regular medicines","Torch, extra batteries, power bank","Important documents in a waterproof bag","Phone charger, whistle, cash","Blankets and spare clothes"];
+
+/* ---------- HELPERS ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+const map=q=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q);
+const status=c=>{const p=c.occ/c.cap;return p>=1?"full":p>=.85?"limited":"open"};
+const label={open:"Space available",limited:"Filling up",full:"Full",high:"Well stocked",medium:"Limited stock",low:"Running low"};
+
+/* ---------- AUTH ---------- */
+let signup=false;
+$("#toggle").onclick=()=>{signup=!signup;$("#ltitle").textContent=signup?"Create account":"Sign in";$("#lbtn").textContent=signup?"Create account":"Sign in";$("#toggle").textContent=signup?"Already registered? Sign in":"New here? Create an account";$("#nameWrap").classList.toggle("hide",!signup);$("#lerr").textContent=""};
+$("#loginForm").onsubmit=e=>{
+  e.preventDefault();
+  const users=load("rl_users",[]),email=$("#lemail").value.trim().toLowerCase(),pass=$("#lpass").value;
+  if(signup){
+    if(!$("#lname").value.trim())return $("#lerr").textContent="Please enter your name.";
+    if(users.some(u=>u.email===email))return $("#lerr").textContent="This email is already registered. Sign in instead.";
+    users.push({email,pass:btoa(pass),name:$("#lname").value.trim(),role:$("#lrole").value});save("rl_users",users);
+    startSession(users[users.length-1]);
+  }else{
+    const u=users.find(u=>u.email===email&&u.pass===btoa(pass));
+    if(!u)return $("#lerr").textContent="Email or password is incorrect. New user? Create an account.";
+    startSession(u);
+  }
+};
+function startSession(u){save("rl_session",u);showApp(u)}
+$("#logout").onclick=()=>{localStorage.removeItem("rl_session");$("#app").classList.add("hide");$("#login").classList.remove("hide");$("#loginForm").reset()};
+function showApp(u){
+  $("#login").classList.add("hide");$("#app").classList.remove("hide");
+  $("#who").textContent=u.name+" · "+u.role;
+  $("#hname").value=u.name;go("dashboard");
+}
+
+/* ---------- NAV ---------- */
+const pages=[["dashboard","Dashboard"],["alerts","Alerts"],["camps","Relief Camps"],["food","Food & Water"],["help","Request Help"],["volunteer","Volunteer"],["contacts","Emergency Contacts"],["safety","Safety Guidelines"]];
+$("#nav").innerHTML=pages.map(p=>`<button data-p="${p[0]}">${p[1]}</button>`).join("");
+$("#nav").onclick=e=>{if(e.target.dataset.p)go(e.target.dataset.p)};
+function go(id){
+  pages.forEach(p=>$("#"+p[0]).classList.toggle("hide",p[0]!==id));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===id));
+  scrollTo(0,0);
+}
+
+/* ---------- RENDER ---------- */
+const alertCard=a=>`<div class="card alert sev-${a.s}"><div class="row"><h3>${a.t}</h3></div><p>${a.m}</p><p class="meta">${a.time}</p></div>`;
+function renderDash(){
+  const free=camps.reduce((s,c)=>s+c.cap-c.occ,0),open=camps.filter(c=>status(c)!=="full").length;
+  $("#ticker").textContent="⚠ "+alerts[0].t+" – "+alerts[0].m;
+  $("#stats").innerHTML=[[camps.length,"Relief camps"],[open,"Camps with space"],[free,"Free beds across camps"],[res.length,"Supply points"],[load("rl_vols",[]).length,"Volunteers registered"]]
+    .map(s=>`<div class="card"><div class="stat">${s[0]}</div><div class="meta">${s[1]}</div></div>`).join("");
+  $("#dashAlerts").innerHTML=alerts.slice(0,2).map(alertCard).join("");
+}
+$("#alertList").innerHTML=alerts.map(alertCard).join("");
+
+$("#campD").innerHTML='<option value="">All districts</option>'+[...new Set(camps.map(c=>c.d))].map(d=>`<option>${d}</option>`).join("");
+function renderCamps(){
+  const q=$("#campQ").value.toLowerCase(),d=$("#campD").value,s=$("#campS").value;
+  const list=camps.filter(c=>(!q||(c.n+c.a).toLowerCase().includes(q))&&(!d||c.d===d)&&(!s||status(c)===s));
+  $("#campList").innerHTML=list.length?list.map(c=>{
+    const st=status(c),p=Math.round(c.occ/c.cap*100),col=st==="open"?"var(--grn)":st==="limited"?"var(--amb)":"var(--red)";
+    return `<div class="card"><div class="row"><h3>${c.n}</h3><span class="tag ${st}">${label[st]}</span></div>
+    <p class="meta">${c.a} · ${c.d} district</p>
+    <div class="bar"><i style="width:${p}%;background:${col}"></i></div>
+    <p class="meta">${c.occ} of ${c.cap} occupied (${c.cap-c.occ} free)</p>
+    <p class="meta">Facilities: ${c.fac.join(", ")}</p>
+    <p style="margin-top:10px;display:flex;gap:8px"><a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="${map(c.n+", "+c.a)}">Directions</a><a class="btn ghost" style="text-decoration:none" href="tel:${c.ph}">Call</a></p></div>`}).join("")
+  :'<div class="empty">No camps match your search. Clear the filters to see all camps.</div>';
+}
+["campQ","campD","campS"].forEach(i=>$("#"+i).addEventListener("input",renderCamps));
+
+function renderRes(){
+  const t=$("#resT").value,list=res.filter(r=>!t||r.t===t);
+  $("#resList").innerHTML=list.map(r=>`<div class="card"><div class="row"><h3>${r.n}</h3><span class="tag ${r.st}">${label[r.st]}</span></div>
+  <p class="meta">${r.t} · ${r.a}</p><p>${r.item}</p><p class="meta">Open: ${r.time}</p>
+  <p style="margin-top:10px"><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="${map(r.n+", "+r.a)}">Directions</a></p></div>`).join("");
+}
+$("#resT").oninput=renderRes;
+
+function renderReqs(){
+  const r=load("rl_reqs",[]);
+  $("#reqList").innerHTML=r.length?r.map(x=>`<div class="card" style="margin-bottom:10px"><div class="row"><h3>${esc(x.type)}</h3><span class="tag limited">${x.status}</span></div>
+  <p class="meta">${esc(x.loc)} · ${x.num} people</p><p>${esc(x.det||"")}</p><p class="meta">Sent ${x.time} · Ref #${x.id}</p></div>`).join(""):'<div class="empty">No requests yet. Fill in the form to send one.</div>';
+}
+$("#helpForm").onsubmit=e=>{
+  e.preventDefault();const r=load("rl_reqs",[]);
+  r.unshift({id:Date.now().toString().slice(-6),type:$("#htype").value,loc:$("#hloc").value,num:$("#hnum").value,det:$("#hdet").value,time:new Date().toLocaleString(),status:"Pending"});
+  save("rl_reqs",r);renderReqs();$("#hloc").value="";$("#hdet").value="";
+};
+
+function renderVols(){
+  const v=load("rl_vols",[]);
+  $("#volCount").textContent=v.length+" registered";
+  $("#volList").innerHTML=v.length?v.map(x=>`<li>${esc(x.name)} – ${esc(x.skill)} (from ${x.date})</li>`).join(""):"<li>No volunteers yet. Be the first to register.</li>";
+}
+$("#volForm").onsubmit=e=>{
+  e.preventDefault();const v=load("rl_vols",[]);
+  v.push({name:$("#vname").value,skill:$("#vskill").value,date:$("#vdate").value});save("rl_vols",v);
+  e.target.reset();renderVols();renderDash();
+};
+
+$("#callList").innerHTML=contacts.map(c=>`<div class="card call"><div><h3>${c[0]}</h3><p class="meta">${c[1]}</p></div><a href="tel:${c[1]}">Call</a></div>`).join("");
+$("#tips").innerHTML=Object.entries(tips).map(([k,v],i)=>`<details ${i?"":"open"}><summary>${k}</summary><ul>${v.map(x=>`<li>${x}</li>`).join("")}</ul></details>`).join("");
+
+function renderKit(){
+  const done=load("rl_kit",[]);
+  $("#kit").innerHTML=kit.map((k,i)=>`<label><input type="checkbox" data-i="${i}" ${done.includes(i)?"checked":""}>${k}</label>`).join("");
+  $("#kitProg").textContent=done.length+" of "+kit.length+" packed";
+}
+$("#kit").onchange=e=>{
+  let d=load("rl_kit",[]),i=+e.target.dataset.i;
+  d=e.target.checked?[...d,i]:d.filter(x=>x!==i);save("rl_kit",d);$("#kitProg").textContent=d.length+" of "+kit.length+" packed";
+};
+
+/* ---------- INIT ---------- */
+renderDash();renderCamps();renderRes();renderReqs();renderVols();renderKit();
+const s=load("rl_session",null);if(s)showApp(s);
+</script>
+</body>
+</html>
